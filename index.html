@@ -624,7 +624,6 @@ const objs=hero.map((k,i)=>{const el=document.createElement('div');el.className=
 
 /* tools: 3D orbit system (desktop) */
 (function(){
- if(matchMedia('(max-width:900px)').matches)return;
  const box=$('#stack');box.className='orbit rv';
  const keys=toolKeys(),split=[5,7,8],spd=[.012,-.008,.005],fr=[.36,.66,.95];
  const rings=split.map(()=>{const r=document.createElement('i');r.className='ringl';box.append(r);return r});
@@ -655,43 +654,11 @@ const objs=hero.map((k,i)=>{const el=document.createElement('div');el.className=
  size();draw();addEventListener('resize',()=>{size();draw()});
  box.addEventListener('pointermove',e=>{const r=box.getBoundingClientRect();px=e.clientX-r.left;py=e.clientY-r.top});
  box.addEventListener('pointerleave',()=>{px=py=-999;lab.textContent=def});
+ box.addEventListener('pointerup',e=>{if(e.pointerType!=='mouse'){px=py=-999}});
  new IntersectionObserver(es=>es.forEach(e=>vis=e.isIntersecting),{rootMargin:'100px'}).observe(box);
- if(matchMedia('(prefers-reduced-motion:reduce)').matches)return;
  (function loop(){
   if(vis){tt+=.012;slow+=((px>-900?.3:1)-slow)*.08;items.forEach(o=>o.a+=spd[o.ri]*slow);draw()}
   requestAnimationFrame(loop)})()
-})();
-
-/* tools (phone): floating icons, each in its own roomy cell */
-(function(){
- if(!matchMedia('(max-width:900px)').matches)return;
- const box=$('#stack');box.className='fz rv';
- const keys=toolKeys();
- const items=keys.map(k=>{const el=document.createElement('div');el.className='fi';
-  el.innerHTML=`<i>${im(k,I[k][1])}</i><span>${I[k][1]}</span>`;box.append(el);
-  return{el,bx:0,by:0,ox:0,oy:0,vx:0,vy:0,ph:Math.random()*6.28}});
- const rowH=136,LIM=16;let W=0,H=0,px=-999,py=-999,vis=false,t=0;
- function size(){
-  W=box.clientWidth||340;const cols=W<600?3:4,cw=W/cols,rows=Math.ceil(items.length/cols);
-  H=rows*rowH+70;box.style.height=H+'px';
-  items.forEach((o,i)=>{const r=Math.floor(i/cols),c=i%cols,sh=(r%2?1:-1)*cw*.06;
-   o.bx=(c+.5)*cw+sh-42;o.by=36+r*rowH})}
- function draw(){
-  items.forEach(o=>{
-   const x=o.bx+Math.sin(t*.8+o.ph)*5,y=o.by+Math.cos(t*.7+o.ph)*5;
-   const dx=x+42+o.ox-px,dy=y+36+o.oy-py,d=Math.hypot(dx,dy)||1;
-   if(d<110){const f=(1-d/110)*2;o.vx+=dx/d*f;o.vy+=dy/d*f}
-   o.vx=(o.vx-o.ox*.06)*.85;o.vy=(o.vy-o.oy*.06)*.85;
-   o.ox=Math.max(-LIM,Math.min(LIM,o.ox+o.vx));o.oy=Math.max(-LIM,Math.min(LIM,o.oy+o.vy));
-   o.el.style.transform=`translate3d(${x+o.ox}px,${y+o.oy}px,0)`})}
- size();draw();addEventListener('resize',()=>{size();draw()});
- const set=e=>{const r=box.getBoundingClientRect();px=e.clientX-r.left;py=e.clientY-r.top};
- box.addEventListener('pointermove',set);box.addEventListener('pointerdown',set);
- box.addEventListener('pointerleave',()=>px=py=-999);
- box.addEventListener('pointerup',e=>{if(e.pointerType!=='mouse')px=py=-999});
- new IntersectionObserver(es=>es.forEach(e=>vis=e.isIntersecting),{rootMargin:'100px'}).observe(box);
- if(matchMedia('(prefers-reduced-motion:reduce)').matches)return;
- (function loop(){if(vis){t+=.012;draw()}requestAnimationFrame(loop)})()
 })();
 
 /* services (antigravity cards) */
